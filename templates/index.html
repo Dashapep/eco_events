@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+
+{% block content %}
+<meta charset="UTF-8">
+<h2 align="center">Календарь событий<a href="/addevent" class="btn btn-primary">Добавить событие</a></h2>
+{% for event in events %}
+<h3>Эко-акция # {{ event.id }}</h3>
+<div class="table_container">
+    <table class="my_table">
+        <tr class="my_row">
+            <td class="title" width="400px" bgcolor="#dddddd">название</td>
+            <td class="title" width="150px" bgcolor="#dddddd">автор</td>
+            <td class="title" width="100px" bgcolor="#dddddd" align="center">описание</td>
+            <td class="title" width="200px" bgcolor="#dddddd" align="center">адрес</td>
+            <td class="title" width="200px" bgcolor="#dddddd" align="center">дата</td>
+            <td class="title" width="100px" bgcolor="#dddddd" align="center">завершено</td>
+        </tr>
+        <tr class="my_row">
+            <td class="ordinary" bgcolor="#eeeeff">{{
+                event.event.capitalize() }} {% if current_user.is_authenticated and current_user.moderator %}
+    <div>
+        <a href="/events/{{ event.id }}" class="btn btn-warning">
+            Проверить
+        </a>
+        <a href="/events_delete/{{ event.id }}" class="btn btn-danger">
+            Удалить
+        </a>
+    </div>
+{% endif %}
+                 </td>
+            <td class="ordinary" bgcolor="#eeeeff">---------</td>
+            <td class="ordinary" bgcolor="#eeeeff" align="center">{{ event.description }}</td>
+            <td class="ordinary" bgcolor="#eeeeff" align="center">{{ event.address }}</td>
+            <td class="ordinary" bgcolor="#eeeeff" align="center">{{ event.date }}</td>
+            {% if event.is_finished %}
+            <td class="ordinary" bgcolor="#eeffee" align="center">Finished</td>
+            {% else %}
+            <td class="ordinary" bgcolor="#ffeeff" align="center">Is not finished</td>
+            {% endif %}
+        </tr>
+
+    </table>
+</div>
+<br>
+{% endfor %}
+
+{% endblock %}

@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1>Adding a Event</h1>
+
+<form action="" method="post">
+    {{ form.hidden_tag() }}
+    {{ form.csrf_token }}
+    <p>
+        {{ form.event.label }}<br>
+        {{ form.event(class="form-control") }}<br>
+        {% for error in form.event.errors %}
+    <p class="alert alert-danger" role="alert">
+        {{ error }}
+    </p>{% endfor %}</p>
+
+    <p>
+        {{ form.description.label }}<br>
+        {{ form.description(class="form-control") }}<br>
+        {% for error in form.description.errors %}
+    <p class="alert alert-danger" role="alert">
+        {{ error }}
+    </p>
+    {% endfor %}
+    </p>
+    <p>
+        {{ form.address.label }}<br>
+        {{ form.address(class="form-control") }}<br>
+        {% for error in form.address.errors %}
+    <p class="alert alert-danger" role="alert">
+        {{ error }}
+    </p>
+    {% endfor %}
+    </p>
+    <p>
+        {{ form.date.label }}<br>
+        {{ form.date(class="form-control", type="date") }}<br>
+        {% for error in form.date.errors %}
+    <p class="alert alert-danger" role="alert">
+    {{ error }}
+    </p>
+    {% endfor %}
+    </p>
+    <p><input class="form-control" id="is_moderated" name="is_moderated" required="" type="hidden" value=False></p>
+
+
+    <p>{% if current_user.is_authenticated and current_user.moderator %}
+    <p>
+        {{ form.is_moderated.label }}<br>
+        {{ form.is_moderated(class="form-control") }}<br>
+        {% for error in form.is_moderated.errors %}
+    <p class="alert alert-danger" role="alert">
+    {{ error }}
+    </p>
+    {% endfor %}
+    </p>
+    {% endif %}</p>
+
+
+    <p>{{ form.submit(type="submit", class="btn btn-primary") }}</p>
+    {{message}}
+</form>
+{% endblock %}
