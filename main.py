@@ -147,6 +147,15 @@ def edit_events(id):
                            form=form
                            )
 
+@app.route('/showevent/<int:id>', methods=['GET', 'POST'])
+def showevent(id):
+    if request.method == "GET":
+        db_sess = db_session.create_session()
+        events = db_sess.query(Events).filter(Events.id == id).first()
+        if not events.is_moderated:
+            abort(404)
+    return render_template('show_event.html', title='Showing a event', event=events)
+
 
 def main():
     db_session.global_init("db/events.sqlite")
