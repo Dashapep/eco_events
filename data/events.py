@@ -11,7 +11,6 @@ class Events(SqlAlchemyBase):
     id = sqlalchemy.Column(sqlalchemy.Integer, primary_key=True, autoincrement=True)
     event = sqlalchemy.Column(sqlalchemy.String, nullable=True)
     description = sqlalchemy.Column(sqlalchemy.String, nullable=True, default=0)
-    # author = sqlalchemy.Column(sqlalchemy.String, nullable=True)
     address = sqlalchemy.Column(sqlalchemy.String, nullable=True)
     date = sqlalchemy.Column(sqlalchemy.String)
     is_finished = sqlalchemy.Column(sqlalchemy.Boolean, default=True)

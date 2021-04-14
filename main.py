@@ -95,7 +95,7 @@ def addevent():
         db_sess = db_session.create_session()
         events = Events(
             event=add_form.event.data,
-            # author=current_user.id,
+            author=current_user.id,
             description=add_form.description.data,
             address=add_form.address.data,
             # date=datetime.datetime.now(),
@@ -109,6 +109,7 @@ def addevent():
     return render_template('addevent.html', title='Adding a event', form=add_form)
 
 @app.route('/events/<int:id>', methods=['GET', 'POST'])
+# @app.route('/events_delete/<int:id>', methods=['DELETE'])
 @login_required
 def edit_events(id):
     form = AddEventForm()
@@ -123,6 +124,15 @@ def edit_events(id):
             form.is_moderated.data = events.is_moderated
         else:
             abort(404)
+    elif request.method == "DELETE":
+        db_sess = db_session.create_session()
+        events = db_sess.query(Events).filter(Events.id == id).first()
+        if not events:
+            abort(404)
+        db_sess.delete(events)
+        db_sess.commit()
+        return redirect('/')
+
     if form.validate_on_submit():
         db_sess = db_session.create_session()
         events = db_sess.query(Events).filter(Events.id == id).first()
@@ -146,6 +156,18 @@ def edit_events(id):
                            title='Редактирование события',
                            form=form
                            )
+
+@app.route('/events_delete/<int:id>', methods=['GET'])
+@login_required
+def delete_events(id):
+    db_sess = db_session.create_session()
+    events = db_sess.query(Events).filter(Events.id == id).first()
+    if not events:
+        abort(404)
+    db_sess.delete(events)
+    db_sess.commit()
+    return redirect('/')
+
 
 @app.route('/showevent/<int:id>', methods=['GET', 'POST'])
 def showevent(id):
