@@ -10,6 +10,7 @@ from data.login_form import LoginForm
 from data.users import User
 from data.events import Events
 from data.register import RegisterForm
+from data.willcome import Willcome
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'yandexlyceum_secret_key'
@@ -79,7 +80,7 @@ def reqister():
             email=form.email.data,
             speciality=form.speciality.data,
             address=form.address.data,
-            moderator=form.name.data=='dasha_moderator'
+            moderator=form.name.data == 'dasha_moderator'
         )
         user.set_password(form.password.data)
         db_sess.add(user)
@@ -107,6 +108,7 @@ def addevent():
     else:
         print('не прошла валидация при добавлении')
     return render_template('addevent.html', title='Adding a event', form=add_form)
+
 
 @app.route('/events/<int:id>', methods=['GET', 'POST'])
 # @app.route('/events_delete/<int:id>', methods=['DELETE'])
@@ -157,6 +159,7 @@ def edit_events(id):
                            form=form
                            )
 
+
 @app.route('/events_delete/<int:id>', methods=['GET'])
 @login_required
 def delete_events(id):
@@ -176,7 +179,32 @@ def showevent(id):
         events = db_sess.query(Events).filter(Events.id == id).first()
         if not events.is_moderated:
             abort(404)
-    return render_template('show_event.html', title='Showing a event', event=events)
+        promise = bool(db_sess.query(Willcome).filter((Willcome.event_id == id), (Willcome.user_id == current_user.id)).first())
+        count = len(db_sess.query(Willcome).filter(Willcome.event_id == id).all())
+
+    return render_template('show_event.html', title='Showing a event', event=events, promise=promise, count=count)
+
+
+@app.route('/iwill/<int:id>', methods=['GET'])
+@login_required
+def iwill(id):
+    if request.method == "GET":
+        db_sess = db_session.create_session()
+        events = db_sess.query(Events).filter(Events.id == id).first()
+        if events:
+            iwill = db_sess.query(Willcome).filter((Willcome.event_id == id), (Willcome.user_id == current_user.id)).first()
+            if not iwill:
+                iwill = Willcome(
+                    event_id=id,
+                    user_id=current_user.id
+                    )
+                db_sess.add(iwill)
+                db_sess.commit()
+            else:
+                db_sess.delete(iwill)
+                db_sess.commit()
+    return redirect('/showevent/'+str(id))
+
 
 
 def main():

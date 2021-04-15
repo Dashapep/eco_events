@@ -2,7 +2,11 @@
 
 {% block content %}
 <meta charset="UTF-8">
-<h2 align="center">Календарь событий<a href="/addevent" class="btn btn-primary">Добавить событие</a></h2>
+<h2 align="center">Календарь событий
+    {% if current_user.is_authenticated %}
+    <a href="/addevent" class="btn btn-primary">Добавить событие</a>
+    {% endif %}
+</h2>
 {% for event in events %}
 <h3>Эко-акция # {{ event.id }}</h3>
 <div class="table_container">
