@@ -9,6 +9,7 @@ class AddEventForm(FlaskForm):
     date = StringField('Date', validators=[DataRequired()])
     address = StringField('Address', validators=[DataRequired()])
     is_moderated = BooleanField('Is_moderated', validators=[DataRequired()])
+    picture = StringField('Picture', validators=[DataRequired()])
 
 
     submit = SubmitField('Submit')

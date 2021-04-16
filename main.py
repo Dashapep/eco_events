@@ -99,7 +99,6 @@ def addevent():
             author=current_user.id,
             description=add_form.description.data,
             address=add_form.address.data,
-            # date=datetime.datetime.now(),
             date=add_form.date.data,
             is_finished=False)
         db_sess.add(events)
@@ -179,7 +178,10 @@ def showevent(id):
         events = db_sess.query(Events).filter(Events.id == id).first()
         if not events.is_moderated:
             abort(404)
-        promise = bool(db_sess.query(Willcome).filter((Willcome.event_id == id), (Willcome.user_id == current_user.id)).first())
+        if current_user.is_authenticated:
+            promise = bool(db_sess.query(Willcome).filter((Willcome.event_id == id), (Willcome.user_id == current_user.id)).first())
+        else:
+            promise = False
         count = len(db_sess.query(Willcome).filter(Willcome.event_id == id).all())
 
     return render_template('show_event.html', title='Showing a event', event=events, promise=promise, count=count)

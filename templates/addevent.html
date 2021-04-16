@@ -43,6 +43,12 @@
     </p>
     <p><input class="form-control" id="is_moderated" name="is_moderated" required="" type="hidden" value=False></p>
 
+    <form method="post" enctype="multipart/form-data">
+                               <div class="form-group">
+                                    <label for="Picture">Выберите файл с картинкой</label>
+                                    <input type="file" class="form-control-file" id="Picture" name="file">
+                                </div>
+    </form>
 
     <p>{% if current_user.is_authenticated and current_user.moderator %}
     <p>
