@@ -1,6 +1,6 @@
 import datetime
 import flask
-from flask import Flask, render_template, redirect, jsonify, request
+from flask import Flask, render_template, redirect, jsonify, request, Request
 from flask_login import LoginManager, login_user, login_required, logout_user, current_user
 from flask_restful import abort
 
@@ -14,6 +14,7 @@ from data.willcome import Willcome
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'yandexlyceum_secret_key'
+
 blueprint = flask.Blueprint(
     'events_api',
     __name__,
@@ -106,7 +107,7 @@ def addevent():
         return redirect('/')
     else:
         print('не прошла валидация при добавлении')
-    return render_template('addevent.html', title='Adding a event', form=add_form)
+    return render_template('addevent.html', title='Добавление нового события', form=add_form)
 
 
 @app.route('/events/<int:id>', methods=['GET', 'POST'])
