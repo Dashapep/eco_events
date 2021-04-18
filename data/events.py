@@ -16,6 +16,7 @@ class Events(SqlAlchemyBase):
     is_finished = sqlalchemy.Column(sqlalchemy.Boolean, default=True)
     is_moderated = sqlalchemy.Column(sqlalchemy.Boolean, default=False)
     author = sqlalchemy.Column(sqlalchemy.Integer, sqlalchemy.ForeignKey("users.id"), nullable=True)
+    picture = sqlalchemy.Column(sqlalchemy.String, nullable=True, default='')
     user = orm.relation('User')
 
     def __repr__(self):

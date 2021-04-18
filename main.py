@@ -1,8 +1,12 @@
 import datetime
+import os
+import uuid
+
 import flask
-from flask import Flask, render_template, redirect, jsonify, request, Request
+from flask import Flask, render_template, redirect, jsonify, request, Request, url_for
 from flask_login import LoginManager, login_user, login_required, logout_user, current_user
 from flask_restful import abort
+from werkzeug.utils import secure_filename
 
 from data import db_session
 from data.add_event import AddEventForm
@@ -12,9 +16,29 @@ from data.events import Events
 from data.register import RegisterForm
 from data.willcome import Willcome
 
+
+def allowed_file(filename):
+    return '.' in filename and \
+           filename.rsplit('.', 1)[1] in ALLOWED_EXTENSIONS
+
+
+def create_new_folder(local_dir):
+    newpath = local_dir
+    if not os.path.exists(newpath):
+        os.makedirs(newpath)
+    return newpath
+
+
+MAX_CONTENT_LENGTH = 1024 * 1024
+
+PROJECT_HOME = os.path.dirname(os.path.realpath(__file__))
+UPLOAD_FOLDER = '{}/static/img/'.format(PROJECT_HOME)
+
+ALLOWED_EXTENSIONS = set(['txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif'])
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'yandexlyceum_secret_key'
-
+app.config['MAX_CONTENT_LENGTH'] = 16 * MAX_CONTENT_LENGTH
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 blueprint = flask.Blueprint(
     'events_api',
     __name__,
@@ -95,18 +119,29 @@ def addevent():
     add_form = AddEventForm()
     if add_form.validate_on_submit():
         db_sess = db_session.create_session()
+
+        img = request.files['picture']
+        filename = str(uuid.uuid4())
+        img_name = "{}.{}".format(filename, secure_filename(img.filename))
+        create_new_folder(app.config['UPLOAD_FOLDER'])
+        saved_path = os.path.join(app.config['UPLOAD_FOLDER'], img_name)
+        img.save(saved_path)
+
         events = Events(
             event=add_form.event.data,
             author=current_user.id,
             description=add_form.description.data,
             address=add_form.address.data,
             date=add_form.date.data,
-            is_finished=False)
+            is_finished=False,
+            picture=img_name
+        )
         db_sess.add(events)
         db_sess.commit()
         return redirect('/')
     else:
-        print('не прошла валидация при добавлении')
+        if request.method == "POST":
+            print('не прошла валидация при добавлении')
     return render_template('addevent.html', title='Добавление нового события', form=add_form)
 
 
@@ -124,6 +159,7 @@ def edit_events(id):
             form.date.data = events.date
             form.address.data = events.address
             form.is_moderated.data = events.is_moderated
+            form.picture = events.picture
         else:
             abort(404)
     elif request.method == "DELETE":
@@ -146,7 +182,22 @@ def edit_events(id):
             if current_user.is_authenticated and current_user.moderator:
                 events.is_moderated = form.is_moderated.data
             else:
-                events.is_moderated = False
+                # events.is_moderated = False
+                pass
+
+            img = request.files['picture']
+            if events.picture != img.filename:
+                if str(events.picture) != '' and events.picture != None:
+                    # картинка изменилась, сохраним новую под старым именем
+                    img_name = events.picture
+                else:
+                    filename = str(uuid.uuid4())
+                    img_name = "{}.{}".format(filename, secure_filename(img.filename))
+                    events.picture = img_name
+
+                create_new_folder(app.config['UPLOAD_FOLDER'])
+                saved_path = os.path.join(app.config['UPLOAD_FOLDER'], img_name)
+                img.save(saved_path)
             db_sess.commit()
             return redirect('/')
         else:
@@ -177,10 +228,13 @@ def showevent(id):
     if request.method == "GET":
         db_sess = db_session.create_session()
         events = db_sess.query(Events).filter(Events.id == id).first()
-        if not events.is_moderated:
+        if  current_user.is_authenticated and  current_user.moderator or events.is_moderated:
+            pass
+        else:
             abort(404)
         if current_user.is_authenticated:
-            promise = bool(db_sess.query(Willcome).filter((Willcome.event_id == id), (Willcome.user_id == current_user.id)).first())
+            promise = bool(db_sess.query(Willcome).filter((Willcome.event_id == id),
+                                                          (Willcome.user_id == current_user.id)).first())
         else:
             promise = False
         count = len(db_sess.query(Willcome).filter(Willcome.event_id == id).all())
@@ -195,19 +249,19 @@ def iwill(id):
         db_sess = db_session.create_session()
         events = db_sess.query(Events).filter(Events.id == id).first()
         if events:
-            iwill = db_sess.query(Willcome).filter((Willcome.event_id == id), (Willcome.user_id == current_user.id)).first()
+            iwill = db_sess.query(Willcome).filter((Willcome.event_id == id),
+                                                   (Willcome.user_id == current_user.id)).first()
             if not iwill:
                 iwill = Willcome(
                     event_id=id,
                     user_id=current_user.id
-                    )
+                )
                 db_sess.add(iwill)
                 db_sess.commit()
             else:
                 db_sess.delete(iwill)
                 db_sess.commit()
-    return redirect('/showevent/'+str(id))
-
+    return redirect(url_for('showevent', id=id))
 
 
 def main():
