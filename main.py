@@ -10,9 +10,11 @@ from werkzeug.utils import secure_filename
 
 from data import db_session
 from data.add_event import AddEventForm
+from data.edit_user import EditUserForm
+from data.events import Events
 from data.login_form import LoginForm
 from data.users import User
-from data.events import Events
+
 from data.register import RegisterForm
 from data.willcome import Willcome
 
@@ -71,13 +73,16 @@ def login():
 @app.route("/")
 def index():
     db_sess = db_session.create_session()
+    today = str(datetime.date.today())
     if current_user.is_authenticated and current_user.moderator:
-        events = db_sess.query(Events).all()
+        events = db_sess.query(Events).filter(Events.date >= today).order_by(Events.date).all()
     else:
-        events = db_sess.query(Events).filter(Events.is_moderated)
+
+        events = db_sess.query(Events).filter(Events.is_moderated, Events.date >= today).order_by(Events.date).all()
+
     users = db_sess.query(User).all()
     names = {name.id: (name.surname, name.name) for name in users}
-    return render_template("index.html", events=events, names=names, title='Event log')
+    return render_template("index.html", events=events, names=names, title='Эко акции')
 
 
 @app.route('/logout')
@@ -133,6 +138,7 @@ def addevent():
             description=add_form.description.data,
             address=add_form.address.data,
             date=add_form.date.data,
+            is_moderated=add_form.is_moderated.data,
             is_finished=False,
             picture=img_name
         )
@@ -159,17 +165,18 @@ def edit_events(id):
             form.date.data = events.date
             form.address.data = events.address
             form.is_moderated.data = events.is_moderated
+            form.is_finished.data = events.is_finished
             form.picture = events.picture
         else:
             abort(404)
-    elif request.method == "DELETE":
-        db_sess = db_session.create_session()
-        events = db_sess.query(Events).filter(Events.id == id).first()
-        if not events:
-            abort(404)
-        db_sess.delete(events)
-        db_sess.commit()
-        return redirect('/')
+    # elif request.method == "DELETE":
+    #     db_sess = db_session.create_session()
+    #     events = db_sess.query(Events).filter(Events.id == id).first()
+    #     if not events:
+    #         abort(404)
+    #     db_sess.delete(events)
+    #     db_sess.commit()
+    #     return redirect('/')
 
     if form.validate_on_submit():
         db_sess = db_session.create_session()
@@ -181,6 +188,7 @@ def edit_events(id):
             events.address = form.address.data
             if current_user.is_authenticated and current_user.moderator:
                 events.is_moderated = form.is_moderated.data
+                events.is_finished = form.is_finished.data
             else:
                 # events.is_moderated = False
                 pass
@@ -228,7 +236,7 @@ def showevent(id):
     if request.method == "GET":
         db_sess = db_session.create_session()
         events = db_sess.query(Events).filter(Events.id == id).first()
-        if  current_user.is_authenticated and  current_user.moderator or events.is_moderated:
+        if current_user.is_authenticated and current_user.moderator or events.is_moderated:
             pass
         else:
             abort(404)
@@ -264,6 +272,32 @@ def iwill(id):
     return redirect(url_for('showevent', id=id))
 
 
+@app.route('/user/<int:id>', methods=['GET', 'POST'])
+@login_required
+def edit_user(id):
+    edit_form = EditUserForm
+
+    if request.method == "GET":
+        db_sess = db_session.create_session()
+        user_info = db_sess.query(User).filter(User.id == id).first()
+        if user_info:
+            edit_form.surname.data = user_info.surname
+            edit_form.name.data = user_info.name
+            edit_form.age.data = user_info.age
+            edit_form.address.data = user_info.address
+            edit_form.moderator.data = user_info.moderator
+            edit_form.email.data = user_info.email
+        else:
+            abort(404)
+
+    elif request.method == "POST":
+        pass
+    # if edit_form.validate_on_submit():
+    #     pass
+
+    return render_template('edit_user.html', title='Информация о пользователе', form=edit_form, user_info=user_info)
+
+
 def main():
     db_session.global_init("db/events.sqlite")
 
@@ -271,4 +305,6 @@ def main():
 
 
 if __name__ == '__main__':
+    # port = int(os.environ.get('PORT', 5000))
+    # app.run(host='127.0.0.1', port=port)
     main()

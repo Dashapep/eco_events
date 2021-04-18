@@ -54,6 +54,19 @@
     </p>
     {% endif %}</p>
 
+    <p><input class="form-control" id="is_finished" name="is_finished" required="" type="hidden" value=False></p>
+    <p>{% if current_user.is_authenticated and current_user.moderator %}
+    <p>
+        {{ form.is_finished.label }}<br>
+        {{ form.is_finished(class="form-control") }}<br>
+        {% for error in form.is_finished.errors %}
+    <p class="alert alert-danger" role="alert">
+        {{ error }}
+    </p>
+    {% endfor %}
+    </p>
+    {% endif %}</p>
+
     <div class="form-group">
         <label for="picture">Выберите файл с картинкой</label>
         <input type="file" class="form-control-file" id="picture" name="picture">

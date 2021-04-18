@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h3>{{ title }}</h3>
+
+<form action="" method="post" enctype="multipart/form-data">
+    <p>
+        Фамилия: {{ user_info.surname }}<br>
+        Имя: {{ user_info.name }}<br>
+        Адрес: {{ user_info.address }}<br>
+        Email: {{ user_info.email }}<br>
+        Возраст: {{ user_info.age }}<br>
+        Модератор: {{ user_info.moderator }}<br>
+    </p>
+</form>
+{% endblock %}

@@ -11,10 +11,10 @@
 <body>
 <header>
     <nav class="navbar navbar-light bg-light">
-        <h1><a class="navbar-brand" href="/">Эко-события</a></h1>
+        <h1><a class="navbar-brand" href="/">Экологических инициативы</a></h1>
 
         {% if current_user.is_authenticated %}
-        <p>{{ current_user.name }} {{ current_user.surname }}</p>
+        <p>Активист: {{ current_user.name }} {{ current_user.surname }}</p>
         <a class="btn btn-outline-secondary" href="/logout">Выйти</a>
         {% else %}
         <p>
@@ -23,7 +23,7 @@
         </p>
         {% endif %}
     </nav>
-    <h4>Предстоящие эко-события</h4>
+<!--    <h4>Календарь событий</h4>-->
 </header>
 <!-- Begin page content -->
 <main role="main" class="container">
