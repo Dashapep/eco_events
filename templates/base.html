@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" >
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
@@ -8,18 +8,18 @@
     <link rel="stylesheet" type="text/css" href="../static/css/style.css"/>
     <title>{{title}}</title>
 </head>
-<body>
+<body bgcolor="#119933">
 <header>
     <nav class="navbar navbar-light bg-light">
-        <h1><a class="navbar-brand" href="/">Экологических инициативы</a></h1>
+        <h1><a class="navbar-brand" href="/">Экологические инициативы</a></h1>
 
         {% if current_user.is_authenticated %}
         <p>Активист: {{ current_user.name }} {{ current_user.surname }}</p>
         <a class="btn btn-outline-secondary" href="/logout">Выйти</a>
         {% else %}
         <p>
-            <a class="btn btn-outline-secondary" href="/login">Log in</a>
-            <a class="btn btn-outline-primary" href="/register">Register</a>
+            <a class="btn btn-outline-secondary" href="/login">Я активист</a>
+            <a class="btn btn-outline-primary" href="/register">Хочу стать активистом</a>
         </p>
         {% endif %}
     </nav>

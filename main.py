@@ -84,6 +84,20 @@ def index():
     names = {name.id: (name.surname, name.name) for name in users}
     return render_template("index.html", events=events, names=names, title='Эко акции')
 
+@app.route("/last")
+def last():
+    db_sess = db_session.create_session()
+    today = str(datetime.date.today())
+    if current_user.is_authenticated and current_user.moderator:
+        events = db_sess.query(Events).filter(Events.date < today).order_by(Events.date).all()
+    else:
+
+        events = db_sess.query(Events).filter(Events.is_moderated, Events.date < today).order_by(Events.date).all()
+
+    users = db_sess.query(User).all()
+    names = {name.id: (name.surname, name.name) for name in users}
+    return render_template("index.html", events=events, names=names, title='Эко акции')
+
 
 @app.route('/logout')
 @login_required
@@ -289,11 +303,23 @@ def edit_user(id):
             abort(404)
 
     elif request.method == "POST":
-        pass
-    # if edit_form.validate_on_submit():
-    #     pass
-
-    return render_template('edit_user.html', title='Информация о пользователе', edit_form=edit_form, user_info=user_info)
+        if edit_form.validate_on_submit():
+            db_sess = db_session.create_session()
+            users = db_sess.query(User).filter(User.id == id).first()
+            if users:
+                users.surname = edit_form.surname.data
+                users.name = edit_form.name.data
+                users.age = edit_form.age.data
+                users.address = edit_form.address.data
+                users.email = edit_form.email.data
+                if current_user.is_authenticated and current_user.moderator:
+                    users.moderator = edit_form.moderator.data
+                else:
+                    # events.is_moderated = False
+                    pass
+                db_sess.commit()
+                return redirect('/')
+    return render_template('edit_user.html', title='Информация о пользователе', edit_form=edit_form, user_info=user_info, id=id)
 
 
 def main():

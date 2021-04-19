@@ -7,15 +7,23 @@
     <title>{{ event.event }}</title>
 </head>
 <h1>{{ event.event }}</h1>
-<h2>{{ event.description }}</h2>
+<div class="container">
+    <div class="row">
+        <div class="col">{% if event.picture != '' or event.picture != None %}
 
-{% if event.picture != '' or event.picture != None %}
+            <img src="/static/img/{{ event.picture }}"
+                 class="figure-img img-fluid rounded"
+                 width="350"
+                 alt="здесь должна была быть картинка, но не нашлась">
+            <br>
+            {% endif %}
+        </div>
+        <div class="col"><h2>{{ event.description }}</h2></div>
 
-<img src="/static/img/{{ event.picture }}"
-     class="img-fluid"
-     alt="здесь должна была быть картинка, но не нашлась">
-<br>
-{% endif %}
+
+    </div>
+</div>
+
 
 {% if current_user.is_authenticated %}
 <a href="/iwill/{{ event.id }}" class="btn btn-outline-primary btn-lg">{% if promise %}Решил не идти

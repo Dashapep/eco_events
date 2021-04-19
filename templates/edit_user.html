@@ -5,8 +5,7 @@
 
 <form action="" method="post" enctype="multipart/form-data">
     {{ edit_form.hidden_tag() }}
-
-    {% if current_user.is_authenticated and current_user.moderator %}
+    {% if (current_user.is_authenticated and current_user.moderator) or current_user.id == id %}
     <div class="col-12">
         {{ edit_form.surname.label }}
         {{ edit_form.surname(class="form-control") }}
@@ -49,7 +48,11 @@
         </div>
     </div>
     <div class="col-12">
+        {% if current_user.is_authenticated and current_user.moderator %}
         {{ edit_form.moderator.label }} {{ edit_form.moderator(class="checkbox mb-3") }}
+        {% else %}
+        Модератор: {{ user_info.moderator }}<br>
+        {% endif %}
     </div>
     <div class="col-12">
         {{ edit_form.submit(type="submit", class="btn btn-outline-primary") }}

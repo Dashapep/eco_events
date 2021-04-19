@@ -4,24 +4,29 @@
 <meta charset="UTF-8">
 <h4 align="center">Календарь событий</h4>
 {% if current_user.is_authenticated %}
+<div class="btn-group">
+  <a href="/last" class="btn btn-outline-success">Прошедшие</a>
+  <a href="/" class="btn btn-outline-success">Предстоящие</a>
+</div>
 <a href="/addevent" class="btn btn-outline-primary">Добавить событие</a>
+
 {% endif %}
 
 
 <div class="table_container">
-    <table class="my_table">
-        <tr class="my_row">
-            <td class="title" width="400px" bgcolor="#dddddd">название</td>
-            <td class="title" width="250px" bgcolor="#dddddd">автор</td>
-            <td class="title" width="200px" bgcolor="#dddddd" align="center">адрес</td>
-            <td class="title" width="200px" bgcolor="#dddddd" align="center">дата</td>
-            <td class="title" width="100px" bgcolor="#dddddd" align="center">завершено</td>
+    <table class="my_table" bgcolor="#F0FFF0">
+        <tr class="my_row" bgcolor="#98FB98">
+            <td class="title" width="400px" >название</td>
+            <td class="title" width="250px" >автор</td>
+            <td class="title" width="200px"  align="center">адрес</td>
+            <td class="title" width="200px"  align="center">дата</td>
+            <td class="title" width="100px" align="center">завершено</td>
         </tr>
 
         {% for event in events %}
 
         <tr class="my_row">
-            <td class="ordinary" bgcolor="#eeeeff">
+            <td class="ordinary" >
 
                 <div>
                     <a href="/showevent/{{ event.id }}">{{ event.event.capitalize() }}</a>
@@ -36,7 +41,7 @@
                 </div>
 
             </td>
-            <td class="ordinary" bgcolor="#eeeeff" align="center">
+            <td class="ordinary"  align="center">
                 {% if event.user.moderator %}
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-star"
                      viewBox="0 0 16 16">
@@ -47,17 +52,17 @@
                 <a href="/user/{{ event.author }}">
                     {{ event.user }}</a>
             </td>
-            <td class="ordinary" bgcolor="#eeeeff" align="center">{{ event.address }}</td>
-            <td class="ordinary" bgcolor="#eeeeff" align="center">{{ event.date }}</td>
+            <td class="ordinary"  align="center">{{ event.address }}</td>
+            <td class="ordinary"  align="center">{{ event.date }}</td>
             {% if event.is_finished %}
-            <td class="ordinary" bgcolor="#eeffee" align="center">
+            <td class="ordinary"  align="center">
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
                      class="bi bi-calendar-check-fill" viewBox="0 0 16 16">
                     <path d="M4 .5a.5.5 0 0 0-1 0V1H2a2 2 0 0 0-2 2v1h16V3a2 2 0 0 0-2-2h-1V.5a.5.5 0 0 0-1 0V1H4V.5zM16 14V5H0v9a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2zm-5.146-5.146-3 3a.5.5 0 0 1-.708 0l-1.5-1.5a.5.5 0 0 1 .708-.708L7.5 10.793l2.646-2.647a.5.5 0 0 1 .708.708z"/>
                 </svg>
             </td>
             {% else %}
-            <td class="ordinary" bgcolor="#ffeeff" align="center"
+            <td class="ordinary" align="center"
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
                  class="bi bi-calendar-event" viewBox="0 0 16 16">
                 <path d="M11 6.5a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-1a.5.5 0 0 1-.5-.5v-1z"/>
