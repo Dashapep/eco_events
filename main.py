@@ -152,7 +152,6 @@ def addevent():
 
 
 @app.route('/events/<int:id>', methods=['GET', 'POST'])
-# @app.route('/events_delete/<int:id>', methods=['DELETE'])
 @login_required
 def edit_events(id):
     form = AddEventForm()
@@ -273,9 +272,8 @@ def iwill(id):
 
 
 @app.route('/user/<int:id>', methods=['GET', 'POST'])
-@login_required
 def edit_user(id):
-    edit_form = EditUserForm
+    edit_form = EditUserForm()
 
     if request.method == "GET":
         db_sess = db_session.create_session()
@@ -295,7 +293,7 @@ def edit_user(id):
     # if edit_form.validate_on_submit():
     #     pass
 
-    return render_template('edit_user.html', title='Информация о пользователе', form=edit_form, user_info=user_info)
+    return render_template('edit_user.html', title='Информация о пользователе', edit_form=edit_form, user_info=user_info)
 
 
 def main():
@@ -305,6 +303,6 @@ def main():
 
 
 if __name__ == '__main__':
-    # port = int(os.environ.get('PORT', 5000))
-    # app.run(host='127.0.0.1', port=port)
+    port = int(os.environ.get('PORT', 5000))
+    app.run(host='127.0.0.1', port=port)
     main()
