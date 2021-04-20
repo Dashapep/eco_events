@@ -2,7 +2,9 @@ import datetime
 import sqlalchemy
 from sqlalchemy import orm
 
+from . import db_session
 from .db_session import SqlAlchemyBase
+from .willcome import Willcome
 
 
 class Events(SqlAlchemyBase):
@@ -21,3 +23,8 @@ class Events(SqlAlchemyBase):
 
     def __repr__(self):
         return f'<Event> {self.event}'
+
+    def get_willcome(self):
+        db_sess = db_session.create_session()
+        count = len(db_sess.query(Willcome).filter(Willcome.event_id == self.id).all())
+        return count

@@ -24,6 +24,11 @@ def allowed_file(filename):
            filename.rsplit('.', 1)[1] in ALLOWED_EXTENSIONS
 
 
+def get_number_of_users():
+    db_sess = db_session.create_session()
+    count = len(db_sess.query(User).all())
+    return count
+
 def create_new_folder(local_dir):
     newpath = local_dir
     if not os.path.exists(newpath):
@@ -67,7 +72,7 @@ def login():
             login_user(user, remember=form.remember_me.data)
             return redirect("/")
         return render_template('login.html', message="Wrong login or password", form=form)
-    return render_template('login.html', title='Authorization', form=form)
+    return render_template('login.html', count_users=get_number_of_users(), title='Authorization', form=form)
 
 
 @app.route("/")
@@ -77,12 +82,11 @@ def index():
     if current_user.is_authenticated and current_user.moderator:
         events = db_sess.query(Events).filter(Events.date >= today).order_by(Events.date).all()
     else:
-
         events = db_sess.query(Events).filter(Events.is_moderated, Events.date >= today).order_by(Events.date).all()
 
-    users = db_sess.query(User).all()
-    names = {name.id: (name.surname, name.name) for name in users}
-    return render_template("index.html", events=events, names=names, title='Эко акции')
+    return render_template("index.html", events=events, count_users=get_number_of_users(), title='Эко акции')
+
+
 
 @app.route("/last")
 def last():
@@ -94,9 +98,7 @@ def last():
 
         events = db_sess.query(Events).filter(Events.is_moderated, Events.date < today).order_by(Events.date).all()
 
-    users = db_sess.query(User).all()
-    names = {name.id: (name.surname, name.name) for name in users}
-    return render_template("index.html", events=events, names=names, title='Эко акции')
+    return render_template("index.html", events=events, count_users=get_number_of_users(), title='Эко акции')
 
 
 @app.route('/logout')
@@ -124,13 +126,13 @@ def reqister():
             email=form.email.data,
             speciality=form.speciality.data,
             address=form.address.data,
-            moderator=form.name.data == 'dasha_moderator'
+            moderator=get_number_of_users()==0
         )
         user.set_password(form.password.data)
         db_sess.add(user)
         db_sess.commit()
         return redirect('/')
-    return render_template('register.html', title='Регистрация', form=form)
+    return render_template('register.html', count_users=get_number_of_users(), title='Регистрация', form=form)
 
 
 @app.route('/addevent', methods=['GET', 'POST'])
@@ -162,7 +164,7 @@ def addevent():
     else:
         if request.method == "POST":
             print('не прошла валидация при добавлении')
-    return render_template('addevent.html', title='Добавление нового события', form=add_form)
+    return render_template('addevent.html', count_users=get_number_of_users(), title='Добавление нового события', form=add_form)
 
 
 @app.route('/events/<int:id>', methods=['GET', 'POST'])
@@ -203,22 +205,24 @@ def edit_events(id):
                 events.is_moderated = form.is_moderated.data
                 events.is_finished = form.is_finished.data
             else:
-                # events.is_moderated = False
                 pass
 
             img = request.files['picture']
-            if events.picture != img.filename:
-                if str(events.picture) != '' and events.picture != None:
-                    # картинка изменилась, сохраним новую под старым именем
-                    img_name = events.picture
-                else:
-                    filename = str(uuid.uuid4())
-                    img_name = "{}.{}".format(filename, secure_filename(img.filename))
-                    events.picture = img_name
+            if img:
+                if events.picture != img.filename:
+                    if str(events.picture) != '' and events.picture != None:
+                        # картинка изменилась, сохраним новую под старым именем
+                        img_name = events.picture
+                    else:
+                        filename = str(uuid.uuid4())
+                        img_name = "{}.{}".format(filename, secure_filename(img.filename))
+                        events.picture = img_name
 
-                create_new_folder(app.config['UPLOAD_FOLDER'])
-                saved_path = os.path.join(app.config['UPLOAD_FOLDER'], img_name)
-                img.save(saved_path)
+                    create_new_folder(app.config['UPLOAD_FOLDER'])
+                    saved_path = os.path.join(app.config['UPLOAD_FOLDER'], img_name)
+                    img.save(saved_path)
+            else:
+                events.picture = ''
             db_sess.commit()
             return redirect('/')
         else:
@@ -226,8 +230,8 @@ def edit_events(id):
 
     else:
         print('не прошла валидация формы')
-    return render_template('addevent.html',
-                           title='Редактирование события',
+    return render_template('addevent.html', count_users=get_number_of_users(),
+                           title='Редактирование события', author=events.author, picture=events.picture,
                            form=form
                            )
 
@@ -249,23 +253,46 @@ def showevent(id):
     if request.method == "GET":
         db_sess = db_session.create_session()
         events = db_sess.query(Events).filter(Events.id == id).first()
+        today = str(datetime.date.today())
+        title = 'Предстоящее событие'
+
+        # определим, прошла ли дата события
+        last = events.date < today
+        if last:
+            title = 'Прошедшее событие'
+
         if current_user.is_authenticated and current_user.moderator or events.is_moderated:
             pass
         else:
+            # непроверенное событие может просатривать только модератор или автор
             abort(404)
+
+        # определим обещал ли текущий пользователь прийти на эту акцию
         if current_user.is_authenticated:
             promise = bool(db_sess.query(Willcome).filter((Willcome.event_id == id),
                                                           (Willcome.user_id == current_user.id)).first())
         else:
             promise = False
+
+        # Посчтиаем количество активистов, обещающих прийти на событие
         count = len(db_sess.query(Willcome).filter(Willcome.event_id == id).all())
 
-    return render_template('show_event.html', title='Showing a event', event=events, promise=promise, count=count)
+        # соберём доп. параметры для передачи в форму
+        param = {
+            'promise': promise,
+            'count': count,
+            'last': last
+        }
+        return render_template('show_event.html', count_users=get_number_of_users(), title=title, event=events,
+                               param=param)
+    else:
+        abort(404)
 
 
 @app.route('/iwill/<int:id>', methods=['GET'])
 @login_required
 def iwill(id):
+    # фиксируем обещание посетить событие
     if request.method == "GET":
         db_sess = db_session.create_session()
         events = db_sess.query(Events).filter(Events.id == id).first()
@@ -319,7 +346,10 @@ def edit_user(id):
                     pass
                 db_sess.commit()
                 return redirect('/')
-    return render_template('edit_user.html', title='Информация о пользователе', edit_form=edit_form, user_info=user_info, id=id)
+    return render_template('edit_user.html', count_users=get_number_of_users(),
+                           title='Информация о пользователе',
+                           edit_form=edit_form,
+                           user_info=user_info, id=id)
 
 
 def main():
