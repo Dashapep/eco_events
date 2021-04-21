@@ -3,7 +3,7 @@ import os
 import uuid
 
 import flask
-from flask import Flask, render_template, redirect, jsonify, request, Request, url_for
+from flask import Flask, render_template, redirect, request, url_for
 from flask_login import LoginManager, login_user, login_required, logout_user, current_user
 from flask_restful import abort
 from werkzeug.utils import secure_filename
@@ -154,7 +154,7 @@ def addevent():
             description=add_form.description.data,
             address=add_form.address.data,
             date=add_form.date.data,
-            is_moderated=add_form.is_moderated.data,
+            is_moderated=False,
             is_finished=False,
             picture=img_name
         )
@@ -164,7 +164,7 @@ def addevent():
     else:
         if request.method == "POST":
             print('не прошла валидация при добавлении')
-    return render_template('addevent.html', count_users=get_number_of_users(), title='Добавление нового события', form=add_form)
+    return render_template('addevent.html', count_users=get_number_of_users(), adding=True, title='Добавление нового события', form=add_form)
 
 
 @app.route('/events/<int:id>', methods=['GET', 'POST'])
@@ -184,14 +184,6 @@ def edit_events(id):
             form.picture = events.picture
         else:
             abort(404)
-    # elif request.method == "DELETE":
-    #     db_sess = db_session.create_session()
-    #     events = db_sess.query(Events).filter(Events.id == id).first()
-    #     if not events:
-    #         abort(404)
-    #     db_sess.delete(events)
-    #     db_sess.commit()
-    #     return redirect('/')
 
     if form.validate_on_submit():
         db_sess = db_session.create_session()
@@ -207,7 +199,10 @@ def edit_events(id):
             else:
                 pass
 
-            img = request.files['picture']
+            if request.files:
+                img = request.files['picture']
+            else:
+                img = None
             if img:
                 if events.picture != img.filename:
                     if str(events.picture) != '' and events.picture != None:
@@ -222,7 +217,8 @@ def edit_events(id):
                     saved_path = os.path.join(app.config['UPLOAD_FOLDER'], img_name)
                     img.save(saved_path)
             else:
-                events.picture = ''
+                pass
+                # events.picture = ''
             db_sess.commit()
             return redirect('/')
         else:
@@ -230,7 +226,7 @@ def edit_events(id):
 
     else:
         print('не прошла валидация формы')
-    return render_template('addevent.html', count_users=get_number_of_users(),
+    return render_template('addevent.html', count_users=get_number_of_users(), adding=False,
                            title='Редактирование события', author=events.author, picture=events.picture,
                            form=form
                            )

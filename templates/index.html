@@ -15,8 +15,8 @@
 <div class="table_container">
     <table class="my_table" bgcolor="#F0FFF0">
         <tr class="my_row" bgcolor="#98FB98">
-            <td class="title" width="400px">название</td>
-            <td class="title" width="250px">автор</td>
+            <td class="title" width="400px" align="center">название</td>
+            <td class="title" width="250px" align="center">автор</td>
             <td class="title" width="200px" align="center">адрес</td>
             <td class="title" width="200px" align="center">дата</td>
             <td class="title" width="100px" align="center">завершено</td>
@@ -26,7 +26,6 @@
 
         <tr class="my_row">
             <td class="ordinary">
-
                 <div>
                     <a href="/showevent/{{ event.id }}">{{ event.event.capitalize() }}</a>
                     {% if current_user.is_authenticated and current_user.moderator %}

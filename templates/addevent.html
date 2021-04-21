@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 
 {% block content %}
-<h3>Добавление нового события</h3>
+<h3>Информация о событии</h3>
 
 <form action="" method="post" enctype="multipart/form-data">
     {{ form.hidden_tag() }}
@@ -51,21 +51,24 @@
     {% endif %}</p>
 
     <div class="form-group">
-        {% if current_user.is_authenticated and current_user.moderator and author != current_user.id %}
+        {% if current_user.is_authenticated and current_user.moderator and author == current_user.id %}
         <label for="picture">Выберите файл с картинкой</label>
         <input type="file" class="form-control-file" id="picture" name="picture">
+        {%else%}
+        <input class="form-control-file" type="hidden" id="picture" name="picture">
         {% endif %}
     </div>
 
-    <div class="col">{% if picture != '' or picture != None %}
-
-        <img src="/static/img/{{ picture }}"
-             class="figure-img img-fluid rounded"
-             width="350"
-             alt="здесь должна была быть картинка, но не нашлась">
-        <br>
+        <div class="form-group">
+        {% if adding==True %}
+        <label for="picture">Выберите файл с картинкой</label>
+        <input type="file" class="form-control-file" id="picture" name="picture">
+        {%else%}
+        <input class="form-control-file" type="hidden" id="picture" name="picture">
         {% endif %}
     </div>
+
+
     <p>{{ form.submit(type="submit", class="btn btn-primary") }}</p>
     {{message}}
 </form>
