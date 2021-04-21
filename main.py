@@ -29,6 +29,7 @@ def get_number_of_users():
     count = len(db_sess.query(User).all())
     return count
 
+
 def create_new_folder(local_dir):
     newpath = local_dir
     if not os.path.exists(newpath):
@@ -87,7 +88,6 @@ def index():
     return render_template("index.html", events=events, count_users=get_number_of_users(), title='Эко акции')
 
 
-
 @app.route("/last")
 def last():
     db_sess = db_session.create_session()
@@ -126,7 +126,7 @@ def reqister():
             email=form.email.data,
             speciality=form.speciality.data,
             address=form.address.data,
-            moderator=get_number_of_users()==0
+            moderator=get_number_of_users() == 0
         )
         user.set_password(form.password.data)
         db_sess.add(user)
@@ -164,7 +164,8 @@ def addevent():
     else:
         if request.method == "POST":
             print('не прошла валидация при добавлении')
-    return render_template('addevent.html', count_users=get_number_of_users(), adding=True, title='Добавление нового события', form=add_form)
+    return render_template('addevent.html', count_users=get_number_of_users(), adding=True,
+                           title='Добавление нового события', form=add_form)
 
 
 @app.route('/events/<int:id>', methods=['GET', 'POST'])
