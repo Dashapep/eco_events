@@ -93,10 +93,9 @@ def last():
     db_sess = db_session.create_session()
     today = str(datetime.date.today())
     if current_user.is_authenticated and current_user.moderator:
-        events = db_sess.query(Events).filter(Events.date < today).order_by(Events.date).all()
+        events = db_sess.query(Events).filter(Events.date < today).order_by(Events.date.desc()).all()
     else:
-
-        events = db_sess.query(Events).filter(Events.is_moderated, Events.date < today).order_by(Events.date).all()
+        events = db_sess.query(Events).filter(Events.is_moderated, Events.date < today).order_by(Events.date.desc()).all()
 
     return render_template("index.html", events=events, count_users=get_number_of_users(), title='Эко акции')
 

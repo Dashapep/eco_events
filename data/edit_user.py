@@ -4,7 +4,7 @@ from wtforms.validators import DataRequired, Email
 
 
 class EditUserForm(FlaskForm):
-    surname = StringField('Фамилия', validators=[DataRequired()])
+    surname = StringField('Фамилия')
     name = StringField('Имя', validators=[DataRequired()])
     age = IntegerField('Возраст')
     email = StringField('Адрес электронной почты', validators=[DataRequired()])
