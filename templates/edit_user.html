@@ -7,6 +7,10 @@
     {{ edit_form.hidden_tag() }}
     {% if (current_user.is_authenticated and current_user.moderator) or current_user.id == id %}
     <div class="col-12">
+        <p>Email: {{ email }}</p>
+    </div>
+
+    <div class="col-12">
         {{ edit_form.surname.label }}
         {{ edit_form.surname(class="form-control") }}
         <div class="invalid-feedback">
@@ -28,14 +32,6 @@
         {{ edit_form.age(class="form-control") }}
         <div class="invalid-feedback">
             {% for error in edit_form.age.errors %} {{ error }}
-            {% endfor %}
-        </div>
-    </div>
-    <div class="col-12">
-        {{ edit_form.email.label }}
-        {{ edit_form.email(class="form-control") }}
-        <div class="invalid-feedback">
-            {% for error in edit_form.email.errors %} {{ error }}
             {% endfor %}
         </div>
     </div>

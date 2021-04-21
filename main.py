@@ -311,6 +311,7 @@ def iwill(id):
 @app.route('/user/<int:id>', methods=['GET', 'POST'])
 def edit_user(id):
     edit_form = EditUserForm()
+    email=''
 
     if request.method == "GET":
         db_sess = db_session.create_session()
@@ -321,7 +322,7 @@ def edit_user(id):
             edit_form.age.data = user_info.age
             edit_form.address.data = user_info.address
             edit_form.moderator.data = user_info.moderator
-            edit_form.email.data = user_info.email
+            email = user_info.email
         else:
             abort(404)
 
@@ -334,7 +335,6 @@ def edit_user(id):
                 users.name = edit_form.name.data
                 users.age = edit_form.age.data
                 users.address = edit_form.address.data
-                users.email = edit_form.email.data
                 if current_user.is_authenticated and current_user.moderator:
                     users.moderator = edit_form.moderator.data
                 else:
@@ -344,7 +344,7 @@ def edit_user(id):
                 return redirect('/')
     return render_template('edit_user.html', count_users=get_number_of_users(),
                            title='Информация о пользователе',
-                           edit_form=edit_form,
+                           edit_form=edit_form, email=email,
                            user_info=user_info, id=id)
 
 

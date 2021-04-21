@@ -7,7 +7,6 @@ class EditUserForm(FlaskForm):
     surname = StringField('Фамилия')
     name = StringField('Имя', validators=[DataRequired()])
     age = IntegerField('Возраст')
-    email = StringField('Адрес электронной почты', validators=[DataRequired()])
     moderator = BooleanField('Модератор')
     address = StringField('Адрес жительства')
 
