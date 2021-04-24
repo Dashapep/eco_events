@@ -28,10 +28,16 @@
             <td class="ordinary">
                 <div>
                     <a href="/showevent/{{ event.id }}">{{ event.event.capitalize() }}</a>
-                    {% if current_user.is_authenticated and current_user.moderator %}
+                    {% if current_user.is_authenticated and current_user.moderator and event.is_moderated==False%}
                     <a href="/events/{{ event.id }}" class="btn btn-outline-warning">
                         Проверить
                     </a>
+                    {% else %}
+                    <a href="/events/{{ event.id }}" class="btn btn-outline-success">
+                        Редактировать
+                    </a>
+                    {% endif %}
+                    {% if current_user.is_authenticated and current_user.moderator %}
                     <a href="/events_delete/{{ event.id }}" class="btn btn-outline-danger">
                         Удалить
                     </a>

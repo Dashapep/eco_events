@@ -3,7 +3,7 @@ import os
 import uuid
 
 import flask
-from flask import Flask, render_template, redirect, request, url_for
+from flask import Flask, render_template, redirect, request, url_for, make_response, jsonify
 from flask_login import LoginManager, login_user, login_required, logout_user, current_user
 from flask_restful import abort
 from werkzeug.utils import secure_filename
@@ -95,7 +95,8 @@ def last():
     if current_user.is_authenticated and current_user.moderator:
         events = db_sess.query(Events).filter(Events.date < today).order_by(Events.date.desc()).all()
     else:
-        events = db_sess.query(Events).filter(Events.is_moderated, Events.date < today).order_by(Events.date.desc()).all()
+        events = db_sess.query(Events).filter(Events.is_moderated, Events.date < today).order_by(
+            Events.date.desc()).all()
 
     return render_template("index.html", events=events, count_users=get_number_of_users(), title='Эко акции')
 
@@ -249,6 +250,8 @@ def showevent(id):
     if request.method == "GET":
         db_sess = db_session.create_session()
         events = db_sess.query(Events).filter(Events.id == id).first()
+        if not events:
+            abort(404)
         today = str(datetime.date.today())
         title = 'Предстоящее событие'
 
@@ -310,8 +313,14 @@ def iwill(id):
 
 @app.route('/user/<int:id>', methods=['GET', 'POST'])
 def edit_user(id):
+    if current_user.is_authenticated:
+        if not current_user.moderator and current_user.id != id:
+            abort(403)
+    else:
+        abort(403)
+
     edit_form = EditUserForm()
-    email=''
+    email = ''
 
     if request.method == "GET":
         db_sess = db_session.create_session()
@@ -342,11 +351,30 @@ def edit_user(id):
                     pass
                 db_sess.commit()
                 return redirect('/')
-    return render_template('edit_user.html', count_users=get_number_of_users(),
+    return render_template('edit_user.html',
+                           count_users=get_number_of_users(),
                            title='Информация о пользователе',
-                           edit_form=edit_form, email=email,
-                           user_info=user_info, id=id)
+                           edit_form=edit_form,
+                           email=email,
+                           user_info=user_info,
+                           id=id)
 
+
+@app.errorhandler(404)
+def not_found(error):
+    count_users = get_number_of_users()
+    massage = 'Запрашиваемая страница недоступна'
+    return make_response(render_template('eror_page.html',
+                                         massage=massage,
+                                         count_users=count_users), 404)
+
+@app.errorhandler(403)
+def not_found(error):
+    count_users = get_number_of_users()
+    massage = 'Доступ запрещён'
+    return make_response(render_template('eror_page.html',
+                                         massage=massage,
+                                         count_users=count_users), 403)
 
 def main():
     db_session.global_init("db/events.sqlite")
