@@ -3,7 +3,7 @@ import os
 import uuid
 
 import flask
-from flask import Flask, render_template, redirect, request, url_for, make_response, jsonify
+from flask import Flask, render_template, redirect, request, url_for, make_response, jsonify, send_from_directory
 from flask_login import LoginManager, login_user, login_required, logout_user, current_user
 from flask_restful import abort
 from werkzeug.utils import secure_filename
@@ -25,8 +25,8 @@ def allowed_file(filename):
 
 
 def get_number_of_users():
-    db_sess = db_session.create_session()
     try:
+        db_sess = db_session.create_session()
         count = len(db_sess.query(User).all())
     except:
         count = 0
@@ -379,6 +379,11 @@ def not_found(error):
     return make_response(render_template('eror_page.html',
                                          massage=massage,
                                          count_users=count_users), 403)
+
+@app.route('/favicon.ico')
+def favicon():
+    return send_from_directory(os.path.join(app.root_path, 'static'),
+                               'favicon.ico', mimetype='image/vnd.microsoft.icon')
 
 
 def main():
