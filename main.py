@@ -26,7 +26,10 @@ def allowed_file(filename):
 
 def get_number_of_users():
     db_sess = db_session.create_session()
-    count = len(db_sess.query(User).all())
+    try:
+        count = len(db_sess.query(User).all())
+    except:
+        count = 0
     return count
 
 
@@ -368,6 +371,7 @@ def not_found(error):
                                          massage=massage,
                                          count_users=count_users), 404)
 
+
 @app.errorhandler(403)
 def not_found(error):
     count_users = get_number_of_users()
@@ -375,6 +379,7 @@ def not_found(error):
     return make_response(render_template('eror_page.html',
                                          massage=massage,
                                          count_users=count_users), 403)
+
 
 def main():
     db_session.global_init("db/events.sqlite")
