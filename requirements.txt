@@ -1,0 +1,6 @@
+flask
+datetime
+uuid
+flask_wtf
+sqlalchemy
+werkzeug
