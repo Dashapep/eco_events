@@ -50,7 +50,7 @@ app = Flask(__name__)
 app.config['SECRET_KEY'] = 'yandexlyceum_secret_key'
 app.config['MAX_CONTENT_LENGTH'] = 16 * MAX_CONTENT_LENGTH
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
-app.debug = True
+app.debug = False
 # blueprint = flask.Blueprint(
 #     'events_api',
 #     __name__,

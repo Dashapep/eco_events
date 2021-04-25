@@ -5,6 +5,7 @@
 
 <h2>{{ title }}</h2>
 <h3>{{ event.event }}</h3>
+<h4>Дата проведения: {{ event.date }}</h4>
 <div class="container">
     <div class="row">
         <div class="col">{% if event.picture != '' %}
@@ -17,7 +18,8 @@
             {% endif %}
         </div>
         <div class="col">
-            <div>{{ event.description }}</div>
+            <div>{{ event.description }}</div><br>
+            <div>{{ event.address }}</div>
         </div>
 
 
