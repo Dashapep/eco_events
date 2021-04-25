@@ -57,6 +57,8 @@ app.debug = True
 #     template_folder='templates'
 # )
 
+create_new_folder('db')
+db_session.global_init("db/events.sqlite")
 
 login_manager = LoginManager()
 login_manager.init_app(app)
@@ -388,6 +390,7 @@ def favicon():
     return send_from_directory(os.path.join(app.root_path, 'static'),
                                'favicon.ico', mimetype='image/vnd.microsoft.icon')
 
+
 #
 # def main():
 #     # create_new_folder('/db')
@@ -397,8 +400,6 @@ def favicon():
 
 
 if __name__ == '__main__':
-    create_new_folder('/db')
-    db_session.global_init("db/events.sqlite")
     port = int(os.environ.get("PORT", 5000))
     app.run(host='0.0.0.0', port=port)
     # main()
