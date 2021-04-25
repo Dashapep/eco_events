@@ -2,14 +2,14 @@
 
 {% block content %}
 
+<p class="h2">{{ title }}</p>
+<p class="h3">{{ event.event }}</p>
+<p class="h4">Дата проведения: {{ event.date }}</p>
+<p class="h4">Место проведения: {{ event.address }}</p>
 
-<h2>{{ title }}</h2>
-<h3>{{ event.event }}</h3>
-<h4>Дата проведения: {{ event.date }}</h4>
 <div class="container">
     <div class="row">
         <div class="col">{% if event.picture != '' %}
-
             <img src="/static/img/{{ event.picture }}"
                  class="figure-img img-fluid rounded"
                  width="350"
@@ -18,21 +18,16 @@
             {% endif %}
         </div>
         <div class="col">
-            <div>{{ event.description }}</div><br>
-            <div>{{ event.address }}</div>
+            <p class="h5">{{ event.description }}</p>
         </div>
-
-
     </div>
 </div>
-
 
 {% if current_user.is_authenticated %}
 {% if param.last %}
 <p>Было записано {{ param.count }}</p>
 {% else %}
 <a href="/iwill/{{ event.id }}" class="btn btn-outline-primary btn-lg">
-
     {% if param.promise %}
     Решил не идти &#128581
     {% else %}
