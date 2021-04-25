@@ -4,3 +4,6 @@ uuid
 flask_wtf
 sqlalchemy
 werkzeug
+flask_login
+wtforms
+flask_restful
