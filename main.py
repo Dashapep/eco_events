@@ -50,11 +50,14 @@ app = Flask(__name__)
 app.config['SECRET_KEY'] = 'yandexlyceum_secret_key'
 app.config['MAX_CONTENT_LENGTH'] = 16 * MAX_CONTENT_LENGTH
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
-blueprint = flask.Blueprint(
-    'events_api',
-    __name__,
-    template_folder='templates'
-)
+app.debug = True
+# blueprint = flask.Blueprint(
+#     'events_api',
+#     __name__,
+#     template_folder='templates'
+# )
+create_new_folder('/db')
+db_session.global_init("db/events.sqlite")
 
 login_manager = LoginManager()
 login_manager.init_app(app)
@@ -380,6 +383,7 @@ def not_found(error):
                                          massage=massage,
                                          count_users=count_users), 403)
 
+
 @app.route('/favicon.ico')
 def favicon():
     return send_from_directory(os.path.join(app.root_path, 'static'),
@@ -387,12 +391,13 @@ def favicon():
 
 
 def main():
-    db_session.global_init("db/events.sqlite")
+    # create_new_folder('/db')
+    # db_session.global_init("db/events.sqlite")
 
     app.run()
 
 
 if __name__ == '__main__':
-    port = int(os.environ.get("PORT", 5000))
-    app.run(host='0.0.0.0', port=port)
+    # port = int(os.environ.get("PORT", 5000))
+    # app.run(host='0.0.0.0', port=port)
     main()
